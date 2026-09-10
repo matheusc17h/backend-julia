@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Backend Julia — Guia de Estudo Passo a Passo</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --muted: #555;
+    --line: #d8d8d8;
+    --accent: #7c3aed;
+    --accent-soft: #f3ecff;
+    --code-bg: #f5f5f7;
+    --ok: #0a7d33;
+    --warn: #a15c00;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 15px; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+    color: var(--ink);
+    line-height: 1.62;
+    margin: 0;
+    padding: 0;
+  }
+  .page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+  h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
+  h1 { font-size: 2.1rem; margin: 0 0 8px; }
+  h2 {
+    font-size: 1.5rem;
+    margin: 44px 0 14px;
+    padding-bottom: 6px;
+    border-bottom: 3px solid var(--accent);
+  }
+  h3 { font-size: 1.17rem; margin: 26px 0 8px; color: #33206b; }
+  h4 { font-size: 1.02rem; margin: 18px 0 4px; }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 24px; }
+  li { margin: 5px 0; }
+  code {
+    font-family: "Cascadia Code", "Consolas", "SF Mono", Menlo, monospace;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.86em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .lead {
+    font-size: 1.08rem;
+    color: var(--muted);
+  }
+  .box {
+    background: var(--accent-soft);
+    border: 1px solid #e0d4ff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+  }
+  .box.analogy::before { content: "🧠 Analogia — "; font-weight: 700; }
+  .box.tip::before { content: "💡 Dica — "; font-weight: 700; }
+  .box.warn { background: #fff6e8; border-color: #f0dcb8; }
+  .box.warn::before { content: "⚠️ Atenção — "; font-weight: 700; color: var(--warn); }
+  .box.why { background: #eefaf1; border-color: #cdeed7; }
+  .box.why::before { content: "❓ Por que fizemos assim — "; font-weight: 700; color: var(--ok); }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 0.88rem;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #efeaf9; }
+  .toc { columns: 2; column-gap: 32px; font-size: 0.9rem; }
+  .toc a { color: var(--ink); text-decoration: none; }
+  .subtitle { color: var(--muted); margin-top: 0; }
+  .tag {
+    display: inline-block;
+    background: #ede7fb;
+    color: #4b2fa5;
+    border-radius: 999px;
+    padding: 1px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  hr { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; height: 30px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  @media print {
+    html { font-size: 10.5pt; }
+    .page { max-width: none; padding: 0 6mm; }
+    h2 { page-break-before: always; }
+    h2:first-of-type, #sec-0 + h2 { page-break-before: avoid; }
+    h2, h3, h4 { page-break-after: avoid; }
+    pre, table, .box { page-break-inside: avoid; }
+    a { color: inherit; text-decoration: none; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Backend Julia</h1>
+<p class="subtitle">Guia de estudo passo a passo — do zero ao pedido, explicado para leigos</p>
+<p class="lead">Este documento explica, em ordem, tudo o que foi construído: uma <strong>API de backend para uma sorveteria</strong> (cadastro de clientes, login, recuperação de senha, produtos, sabores, carrinho e pedidos), usando <strong>DDD</strong>, <strong>SOLID</strong> e <strong>Clean Architecture</strong>. Cada etapa tem o "o quê", o "por quê" e uma analogia do mundo real.</p>
+
+<hr>
+
+<h2 id="sec-0">Sumário</h2>
+<div class="toc">
+  <p><a href="#p1">Parte 1 — Conceitos que você precisa antes de começar</a></p>
+  <p><a href="#p2">Parte 2 — A ideia da arquitetura em camadas</a></p>
+  <p><a href="#p3">Parte 3 — As etapas da construção</a></p>
+  <p><a href="#e0">Etapa 0 — Entender o projeto que já existia</a></p>
+  <p><a href="#e1">Etapa 1 — Modelar o banco de dados</a></p>
+  <p><a href="#e2">Etapa 2 — Gerar a migration e o cliente Prisma</a></p>
+  <p><a href="#e3">Etapa 3 — O "kit compartilhado" (Either, Erros, Money)</a></p>
+  <p><a href="#e4">Etapa 4 — Domínio: Cliente</a></p>
+  <p><a href="#e5">Etapa 5 — Domínio: Código de recuperação de senha</a></p>
+  <p><a href="#e6">Etapa 6 — Domínio: Produto e Sabor</a></p>
+  <p><a href="#e7">Etapa 7 — Domínio: Carrinho</a></p>
+  <p><a href="#e8">Etapa 8 — Domínio: Pedido</a></p>
+  <p><a href="#e9">Etapa 9 — Contratos de repositório</a></p>
+  <p><a href="#e10">Etapa 10 — Ports (contratos de infraestrutura)</a></p>
+  <p><a href="#e11">Etapa 11 — Casos de uso</a></p>
+  <p><a href="#e12">Etapa 12 — Providers (as ferramentas reais)</a></p>
+  <p><a href="#e13">Etapa 13 — Repositórios com Prisma</a></p>
+  <p><a href="#e14">Etapa 14 — A camada HTTP (Fastify)</a></p>
+  <p><a href="#e15">Etapa 15 — O container (composition root)</a></p>
+  <p><a href="#e16">Etapa 16 — Servidor, variáveis de ambiente e seed</a></p>
+  <p><a href="#e17">Etapa 17 — Ajuste do TypeScript</a></p>
+  <p><a href="#e18">Etapa 18 — Testes</a></p>
+  <p><a href="#p4">Parte 4 — Fluxos completos narrados</a></p>
+  <p><a href="#p5">Parte 5 — Mapa de endpoints</a></p>
+  <p><a href="#p6">Parte 6 — Como rodar</a></p>
+  <p><a href="#p7">Parte 7 — Glossário</a></p>
+  <p><a href="#p8">Parte 8 — Exercícios para fixar</a></p>
+</div>
+
+<h2 id="p1">Parte 1 — Conceitos que você precisa antes de começar</h2>
+
+<h3>O que é um "backend"?</h3>
+<p>Quando você usa um aplicativo (um site de loja, por exemplo), existem <strong>duas metades</strong>:</p>
+<ul>
+  <li><strong>Frontend</strong>: a tela que você vê e toca (botões, listas, formulários). Roda no celular ou no navegador.</li>
+  <li><strong>Backend</strong>: o "cérebro" que fica num servidor. Ele guarda os dados, aplica as regras ("o carrinho não pode ter quantidade negativa"), confere senha, calcula o total do pedido, etc.</li>
+</ul>
+<p>Este projeto é <strong>só o backend</strong>. Ele não tem telas. Ele oferece uma <strong>API</strong>.</p>
+
+<div class="box analogy">Pense num restaurante. O <strong>frontend</strong> é o salão e o cardápio. O <strong>backend</strong> é a cozinha. Você não entra na cozinha; você faz um <em>pedido</em> pelo garçom e recebe um <em>prato</em> de volta.</div>
+
+<h3>O que é uma API, uma rota e um método HTTP?</h3>
+<p><strong>API</strong> é o conjunto de "pedidos" que o backend aceita. Cada pedido vai para uma <strong>rota</strong> (um endereço, tipo <code>/products</code>) usando um <strong>método HTTP</strong> que indica a intenção:</p>
+<table>
+  <tr><th>Método</th><th>Intenção</th><th>Exemplo neste projeto</th></tr>
+  <tr><td><code>GET</code></td><td>Ler / consultar</td><td><code>GET /products</code> — listar produtos</td></tr>
+  <tr><td><code>POST</code></td><td>Criar algo novo</td><td><code>POST /customers</code> — cadastrar cliente</td></tr>
+  <tr><td><code>PUT</code></td><td>Substituir / editar por inteiro</td><td><code>PUT /admin/products/:id</code></td></tr>
+  <tr><td><code>PATCH</code></td><td>Editar um pedacinho</td><td><code>PATCH /cart/items/:id</code> — mudar quantidade</td></tr>
+  <tr><td><code>DELETE</code></td><td>Remover</td><td><code>DELETE /cart</code> — esvaziar carrinho</td></tr>
+</table>
+<p>Os dados vão e voltam em <strong>JSON</strong>, um formato de texto simples com pares "chave: valor". Exemplo do corpo de um cadastro:</p>
+<pre><code>{ "name": "Maria", "email": "maria@exemplo.com", "password": "senha1234" }</code></pre>
+<p>A resposta traz um <strong>código de status</strong>: <code>200/201</code> = deu certo, <code>400</code> = você mandou dado inválido, <code>401</code> = não está logado, <code>403</code> = logado mas sem permissão, <code>404</code> = não existe, <code>409</code> = conflito (ex.: e-mail já cadastrado), <code>500</code> = erro nosso.</p>
+
+<h3>O que é um banco de dados e um ORM?</h3>
+<p><strong>Banco de dados</strong> é onde os dados ficam guardados de forma permanente, em <strong>tabelas</strong> (parecidas com planilhas: colunas e linhas). Aqui usamos o <strong>SQLite</strong>, um banco que é um único arquivo (<code>dev.db</code>) — ótimo para estudar.</p>
+<p>Falar com o banco "na mão" exige escrever <strong>SQL</strong>. Um <strong>ORM</strong> ("Object-Relational Mapper") faz essa ponte para você: você escreve código em TypeScript e ele gera o SQL. Aqui o ORM é o <strong>Prisma</strong>.</p>
+
+<div class="box analogy">O banco é um <strong>arquivo de aço</strong> com gavetas e pastas. O ORM (Prisma) é um <strong>assistente</strong> que busca e guarda pastas para você quando você pede em português, sem você precisar saber em qual gaveta está.</div>
+
+<h3>O que é autenticação por "token"?</h3>
+<p>Depois que o cliente faz login, o backend devolve um <strong>token</strong>: um texto embaralhado que funciona como uma <strong>pulseira de evento</strong>. Em cada pedido seguinte, o app manda essa pulseira no cabeçalho <code>Authorization: Bearer &lt;token&gt;</code>. O backend confere se a pulseira é autêntica (não foi falsificada) e não expirou. Se estiver ok, ele sabe <em>quem</em> é você sem pedir a senha de novo.</p>
+
+<h3>DDD, SOLID e Clean Architecture — sem jargão</h3>
+<p>São três formas de <strong>organizar o código</strong> para ele não virar um novelo.</p>
+<ul>
+  <li><strong>DDD (Domain-Driven Design)</strong>: coloque as <strong>regras do negócio</strong> no centro e dê a elas nomes do mundo real ("Cliente", "Carrinho", "Pedido", "Sabor"). O código deve parecer com a forma como as pessoas do negócio falam.</li>
+  <li><strong>SOLID</strong>: cinco princípios para módulos pequenos e trocáveis. O mais importante aqui: <strong>dependa de contratos, não de detalhes</strong>. O código que decide "como cadastrar um cliente" não sabe se a senha é criptografada com a ferramenta X ou Y — ele só conhece um contrato "algo que sabe criptografar".</li>
+  <li><strong>Clean Architecture</strong>: desenhe o sistema em <strong>camadas concêntricas</strong>. O miolo (regras) não conhece o mundo externo (banco, internet). As setas de dependência apontam sempre <em>para dentro</em>.</li>
+</ul>
+
+<div class="box why">Se amanhã a sorveteria trocar SQLite por PostgreSQL, ou o e-mail por outro serviço, ou o formato do token — <strong>as regras de negócio não mudam nem uma linha</strong>. Só troca a "peça" da borda. É esse o ganho de separar em camadas.</div>
+
+<h2 id="p2">Parte 2 — A ideia da arquitetura em camadas</h2>
+
+<p>Imagine a empresa "Sorveteria Julia" com quatro setores. Cada arquivo do projeto mora em um deles:</p>
+
+<table>
+  <tr><th>Camada (pasta)</th><th>Analogia</th><th>Contém</th><th>Pode depender de…</th></tr>
+  <tr>
+    <td><strong>domínio</strong><br><code>src/domain</code></td>
+    <td>O "livro de regras" da empresa</td>
+    <td>Entidades (Cliente, Produto, Carrinho, Pedido), objetos de valor (E-mail, Dinheiro) e <em>interfaces</em> de repositório</td>
+    <td><strong>Nada.</strong> Não sabe o que é Fastify nem Prisma.</td>
+  </tr>
+  <tr>
+    <td><strong>aplicação</strong><br><code>src/application</code></td>
+    <td>Os "procedimentos operacionais" (passo a passo de cada tarefa)</td>
+    <td>Casos de uso ("Cadastrar cliente", "Criar pedido") e <em>ports</em> (contratos das ferramentas)</td>
+    <td>Só do domínio e dos próprios contratos.</td>
+  </tr>
+  <tr>
+    <td><strong>infraestrutura</strong><br><code>src/infra</code></td>
+    <td>As "ferramentas e fornecedores" reais</td>
+    <td>Prisma (banco), gerador de token, envio de e-mail, e o servidor HTTP (Fastify) com as rotas</td>
+    <td>De tudo — ela é a borda. <em>Implementa</em> os contratos.</td>
+  </tr>
+  <tr>
+    <td><strong>composition root</strong><br><code>src/container.ts</code></td>
+    <td>O "RH" que contrata e conecta todo mundo no primeiro dia</td>
+    <td>Cria as peças concretas e injeta umas nas outras</td>
+    <td>De todas.</td>
+  </tr>
+</table>
+
+<div class="box tip">Regra de ouro para checar se está certo: <strong>um arquivo em <code>domain/</code> nunca deve ter <code>import</code> de <code>fastify</code>, <code>@prisma/client</code> ou de qualquer coisa em <code>infra/</code></strong>. Se tiver, a dependência apontou para fora — errado.</div>
+
+<h3>Estrutura final de pastas</h3>
+<pre><code>src/
+  shared/            Either, Erros, Money (usados por todas as camadas)
+  domain/
+    customer/        Customer, Email, política de senha, contrato de repositório
+    auth/            PasswordResetCode + contrato
+    catalog/         Product, Flavor + contratos
+    cart/            Cart, CartItem + contrato
+    order/           Order, OrderItem + contrato
+  application/
+    ports/           HashProvider, TokenProvider, MailProvider, geradores
+    shared/          paginação
+    customer/        register-customer, authenticate-customer
+    auth/            request-password-reset, reset-password
+    product/         create / update / list / get
+    flavor/          create / update / list
+    cart/            get / add-item / update-item / remove-item / clear + cart-view
+    order/           create / list / get
+  infra/
+    database/prisma/ client + 6 repositórios
+    providers/       scrypt (hash), HMAC (token), console (e-mail), uuid/código
+    http/            app, auth (guards), http-helpers, routes/*
+  config/env.ts      leitura das variáveis de ambiente
+  container.ts       liga tudo
+  server.ts          liga o servidor
+prisma/
+  schema.prisma      desenho do banco
+  seed.ts            cria o admin inicial</code></pre>
+
+<h2 id="p3">Parte 3 — As etapas da construção</h2>
+
+<h3 id="e0"><span class="step-num">0</span>Entender o projeto que já existia</h3>
+<p><strong>O quê:</strong> antes de escrever qualquer coisa, olhamos o que já estava na pasta.</p>
+<p><strong>O que encontramos:</strong> um esqueleto — Fastify + Prisma + SQLite já instalados, um <code>schema.prisma</code> com só a tabela <code>Customer</code> (sem senha!), um arquivo de rotas de pedido com respostas "de mentira" (<code>"pedido criado"</code>) e um caso de uso vazio.</p>
+<p><strong>Por quê essa etapa:</strong> reaproveitar as escolhas do projeto (linguagem, framework, banco, forma de importar) em vez de impor outras. O código novo tem que "parecer" com o que já existe.</p>
+
+<h3 id="e1"><span class="step-num">1</span>Modelar o banco de dados</h3>
+<p><strong>O quê:</strong> reescrevemos <code>prisma/schema.prisma</code> descrevendo todas as tabelas ("models") e como elas se ligam.</p>
+
+<p><strong>Tabelas criadas e para que servem:</strong></p>
+<table>
+  <tr><th>Tabela</th><th>Guarda</th><th>Campos-chave</th></tr>
+  <tr><td><code>Customer</code></td><td>O cliente (e também o admin)</td><td><code>email</code> único, <code>passwordHash</code>, <code>role</code> = <code>"CUSTOMER"</code> ou <code>"ADMIN"</code></td></tr>
+  <tr><td><code>PasswordResetCode</code></td><td>Código de recuperação de senha, já com hash</td><td><code>codeHash</code>, <code>expiresAt</code>, <code>consumedAt</code></td></tr>
+  <tr><td><code>Product</code></td><td>Um produto do catálogo</td><td><code>priceCents</code> (preço em centavos), <code>active</code></td></tr>
+  <tr><td><code>Flavor</code></td><td>Um sabor</td><td><code>name</code> único, <code>active</code></td></tr>
+  <tr><td><code>ProductFlavor</code></td><td>Ligação "este produto aceita este sabor" (muitos-para-muitos)</td><td>par <code>(productId, flavorId)</code></td></tr>
+  <tr><td><code>Cart</code></td><td>O carrinho aberto do cliente (um por cliente)</td><td><code>customerId</code> único</td></tr>
+  <tr><td><code>CartItem</code></td><td>Uma linha do carrinho</td><td><code>quantity</code>, <code>unitPriceCents</code></td></tr>
+  <tr><td><code>Order</code></td><td>Um pedido fechado</td><td><code>status</code>, <code>totalCents</code></td></tr>
+  <tr><td><code>OrderItem</code></td><td>Uma linha do pedido, com nome e preço "congelados"</td><td><code>productName</code>, <code>flavorName</code>, <code>unitPriceCents</code></td></tr>
+</table>
+
+<div class="box why"><strong>Preço em centavos (número inteiro).</strong> Computador erra conta com "vírgula" (0,1 + 0,2 não dá exatamente 0,3). Guardando <code>2500</code> em vez de <code>25.00</code>, somas e multiplicações ficam exatas. Convertendo para reais só na hora de exibir.</div>
+
+<div class="box why"><strong>Admin é um <code>Customer</code> com <code>role = "ADMIN"</code>.</strong> Não criamos uma tabela separada de usuários. É mais simples e o enunciado só fala em "cliente" e "administrador". O SQLite não tem tipo "enum", então <code>role</code> e <code>status</code> são texto, validados no código.</div>
+
+<div class="box why"><strong><code>OrderItem</code> copia o nome e o preço do produto.</strong> Se amanhã o produto "Sorvete 1L" mudar de preço ou for apagado, o pedido antigo tem que continuar mostrando o que foi realmente comprado e por quanto. Isso se chama <em>snapshot</em> (foto do momento).</p></div>
+
+<h3 id="e2"><span class="step-num">2</span>Gerar a migration e o cliente Prisma</h3>
+<p><strong>O quê:</strong> rodamos dois comandos.</p>
+<pre><code>npx prisma migrate dev --name full_domain   # cria as tabelas de verdade no dev.db
+npx prisma generate                          # gera código TypeScript com os tipos das tabelas</code></pre>
+<ul>
+  <li><strong>Migration</strong> = um arquivo <code>.sql</code> versionado que descreve a mudança no banco. Fica em <code>prisma/migrations/</code>. Qualquer pessoa do time roda a mesma migration e fica com o banco idêntico.</li>
+  <li><strong>Generate</strong> = o Prisma lê o schema e escreve, em <code>generated/client</code>, um objeto <code>prisma</code> com métodos como <code>prisma.customer.findUnique(...)</code> já sabendo os campos.</li>
+</ul>
+
+<h3 id="e3"><span class="step-num">3</span>O "kit compartilhado": Either, Erros e Money</h3>
+<p><strong>O quê:</strong> três arquivos em <code>src/shared/</code> usados por todo o resto.</p>
+
+<h4>1) <code>errors.ts</code> — erros com "etiqueta"</h4>
+<p>Uma família de classes de erro: <code>ValidationError</code> (400), <code>UnauthorizedError</code> (401), <code>ForbiddenError</code> (403), <code>NotFoundError</code> (404), <code>ConflictError</code> (409). Cada uma carrega um <code>status</code> (número HTTP) e um <code>code</code> (texto estável, ex.: <code>"CONFLICT"</code>).</p>
+<div class="box why">Assim a camada HTTP <strong>não precisa de um <code>if/else</code> gigante</strong> para decidir o status. Ela pega o erro, lê <code>erro.status</code> e <code>erro.code</code> e responde. O caso de uso decide o "significado", o HTTP só traduz.</div>
+
+<h4>2) <code>either.ts</code> — devolver "deu certo" ou "deu erro" sem lançar exceção</h4>
+<p><code>Either</code> é uma caixinha que ou tem <code>{ ok: false, value: erro }</code> ou <code>{ ok: true, value: resultado }</code>. Funções auxiliares: <code>left(erro)</code> e <code>right(valor)</code>.</p>
+<div class="box analogy">É como um <strong>resultado de exame</strong>: vem <em>sempre</em> um envelope. Dentro, ou está "alterado, procure o médico" ou "tudo normal, aqui estão os números". Você é obrigado a abrir e checar qual é antes de seguir.</div>
+<div class="box why">Com <code>throw</code>, um erro "voa" e pode ser esquecido. Com <code>Either</code>, o TypeScript te obriga a checar <code>if (resultado.ok)</code> antes de usar o valor. Fluxos previsíveis de negócio ("e-mail já existe") não são "exceções" — são respostas normais.</div>
+
+<h4>3) <code>money.ts</code> — o objeto de valor Dinheiro</h4>
+<p>Uma classe <code>Money</code> que guarda <code>cents</code> (inteiro) e só deixa criar valor válido (<code>Money.fromCents</code> recusa negativo ou quebrado). Tem <code>add()</code>, <code>multiply(qtd)</code> e <code>reais</code>.</p>
+<div class="box tip"><strong>Objeto de valor</strong> = algo definido pelo seu conteúdo, não por um "id". Dois <code>Money</code> de 2500 centavos são "o mesmo dinheiro". Ele é <em>imutável</em>: somar gera um novo <code>Money</code>, não altera o antigo.</div>
+
+<h3 id="e4"><span class="step-num">4</span>Domínio: Cliente</h3>
+<p>Quatro arquivos em <code>src/domain/customer/</code>.</p>
+<ul>
+  <li><code>email.ts</code> — objeto de valor <strong>Email</strong>. <code>Email.create("  MARIA@X.COM ")</code> apara espaços, deixa minúsculo, confere o formato e devolve <code>Either</code>. Depois disso, é impossível ter um e-mail "meio inválido" circulando no sistema.</li>
+  <li><code>password-policy.ts</code> — objeto de valor <strong>RawPassword</strong> (senha em texto puro). Só aceita se tiver 8+ caracteres com letras e números. Vive pouquíssimo tempo: nasce, é conferida, é transformada em hash e some.</li>
+  <li><code>customer.ts</code> — a <strong>entidade Customer</strong>. Tem <code>id</code>, <code>name</code>, <code>email</code>, <code>phone</code>, <code>passwordHash</code>, <code>role</code>, datas. Construtor é <em>privado</em>; cria-se por <code>Customer.create(...)</code> (novo cliente) ou <code>Customer.restore(...)</code> (reconstruído a partir do banco). Métodos de negócio: <code>changePassword()</code>, <code>updateProfile()</code>, <code>isAdmin</code>, e <code>toPublic()</code> que devolve os dados <strong>sem o hash da senha</strong>.</li>
+  <li><code>customer.repository.ts</code> — só a <strong>interface</strong> <code>CustomerRepository</code>: "quem quiser guardar clientes precisa saber fazer <code>findById</code>, <code>findByEmail</code>, <code>create</code>, <code>save</code>". Não diz <em>como</em>.</li>
+</ul>
+<div class="box why"><strong>Entidade "rica", não "anêmica".</strong> Em vez de um saco de dados que qualquer um altera à vontade, a entidade protege suas próprias regras. Você não faz <code>customer.role = "ADMIN"</code> solto; a entidade controla o que pode mudar e quando.</div>
+
+<h3 id="e5"><span class="step-num">5</span>Domínio: Código de recuperação de senha</h3>
+<p><code>src/domain/auth/</code>: a entidade <strong>PasswordResetCode</strong> e sua interface de repositório.</p>
+<p>Regras que a entidade garante sozinha:</p>
+<ul>
+  <li>Nasce com <code>expiresAt</code> = agora + 15 min (configurável).</li>
+  <li><code>isExpired()</code>, <code>isConsumed()</code>, <code>isUsable()</code> respondem sobre o estado.</li>
+  <li><code>consume()</code> marca como usado — o código vale <strong>uma vez só</strong>.</li>
+  <li>O que se guarda é o <strong>hash</strong> do código, nunca o número em si.</li>
+</ul>
+<div class="box why">Se o banco vazar, ninguém consegue os códigos de recuperação (são só hashes). E como expira e é de uso único, uma pessoa mal-intencionada tem uma janela minúscula mesmo que intercepte o e-mail.</div>
+
+<h3 id="e6"><span class="step-num">6</span>Domínio: Produto e Sabor</h3>
+<p><code>src/domain/catalog/</code>.</p>
+<ul>
+  <li><code>flavor.ts</code> — entidade <strong>Flavor</strong>: <code>name</code>, <code>active</code>, <code>update()</code>.</li>
+  <li><code>product.ts</code> — entidade <strong>Product</strong>: <code>name</code>, <code>description</code>, <code>price</code> (um <code>Money</code>), <code>active</code>, e <code>flavorIds</code> (lista de sabores que ele aceita). Métodos de negócio úteis: <code>offersFlavor(id)</code> ("este produto aceita esse sabor?") e <code>requiresFlavor</code> ("este produto exige escolher um sabor?").</li>
+  <li><code>catalog.repository.ts</code> — interfaces <code>ProductRepository</code> e <code>FlavorRepository</code>, mais os tipos de <strong>paginação</strong> (<code>page</code>, <code>perPage</code>, <code>total</code>).</li>
+</ul>
+
+<h3 id="e7"><span class="step-num">7</span>Domínio: Carrinho</h3>
+<p><code>src/domain/cart/cart.ts</code> define duas classes que trabalham juntas — um <strong>agregado</strong>:</p>
+<ul>
+  <li><strong>CartItem</strong>: uma linha (produto + sabor opcional + quantidade + preço unitário). Sabe calcular seu <code>subtotal</code>.</li>
+  <li><strong>Cart</strong>: a "raiz". Todo mundo mexe no carrinho <em>através</em> dele, nunca direto nos itens. Ele garante as regras:
+    <ul>
+      <li><code>addItem(...)</code>: se já existe uma linha com o <em>mesmo produto e mesmo sabor</em>, só aumenta a quantidade; senão cria uma linha nova.</li>
+      <li><code>changeItemQuantity(id, q)</code>: recusa quantidade menor que 1; devolve <code>NotFoundError</code> se o item não existe.</li>
+      <li><code>removeItem(id)</code>, <code>clear()</code>, <code>total</code> (soma dos subtotais como <code>Money</code>), <code>isEmpty</code>.</li>
+    </ul>
+  </li>
+</ul>
+<div class="box analogy">O <strong>agregado</strong> é como uma <em>ata de reunião</em>: você não risca uma linha no meio à caneta. Você fala com o secretário (a raiz <code>Cart</code>), e ele altera de forma controlada para o documento nunca ficar inconsistente.</div>
+
+<h3 id="e8"><span class="step-num">8</span>Domínio: Pedido</h3>
+<p><code>src/domain/order/order.ts</code>: agregado <strong>Order</strong> + <strong>OrderItem</strong>.</p>
+<ul>
+  <li><code>Order.createFromItems(...)</code> recebe a lista de itens "congelados" e devolve <code>Either</code> — recusa criar pedido <strong>sem nenhum item</strong>.</li>
+  <li>Cada <code>OrderItem</code> guarda <code>productName</code> e <code>flavorName</code> (texto), não só os ids. É a "foto" do momento da compra.</li>
+  <li><code>status</code> começa em <code>"PENDING"</code>. Métodos <code>markPaid()</code> e <code>cancel()</code> aplicam as regras de transição (ex.: não dá para cancelar pedido já pago).</li>
+  <li><code>total</code> é a soma dos subtotais.</li>
+</ul>
+
+<h3 id="e9"><span class="step-num">9</span>Contratos de repositório</h3>
+<p><strong>O quê:</strong> em cada pasta do domínio há um arquivo <code>*.repository.ts</code> que é <strong>só uma interface</strong> (uma lista de métodos, sem corpo).</p>
+<pre><code>export interface CustomerRepository {
+  findById(id: string): Promise&lt;Customer | null&gt;
+  findByEmail(email: string): Promise&lt;Customer | null&gt;
+  create(customer: Customer): Promise&lt;void&gt;
+  save(customer: Customer): Promise&lt;void&gt;
+}</code></pre>
+<div class="box why">Isto é o <strong>"D" de SOLID</strong> (Inversão de Dependência). O domínio <em>declara o que precisa</em> ("preciso poder achar cliente por e-mail"). Quem cumpre essa promessa usando Prisma vem depois, na infraestrutura. O domínio nunca "olha para baixo".</div>
+
+<h3 id="e10"><span class="step-num">10</span>Ports (contratos de infraestrutura)</h3>
+<p><code>src/application/ports/</code> — mais interfaces, agora para <strong>ferramentas técnicas</strong> que os casos de uso precisam:</p>
+<table>
+  <tr><th>Port</th><th>Promessa</th></tr>
+  <tr><td><code>HashProvider</code></td><td><code>hash(texto)</code> e <code>compare(texto, hash)</code> — embaralhar senhas/códigos e conferir</td></tr>
+  <tr><td><code>TokenProvider</code></td><td><code>sign(dados)</code> e <code>verify(token)</code> — criar e validar a "pulseira" do login</td></tr>
+  <tr><td><code>MailProvider</code></td><td><code>send(mensagem)</code> — enviar e-mail</td></tr>
+  <tr><td><code>IdGenerator</code> / <code>CodeGenerator</code></td><td>gerar identificadores únicos e o código numérico de 6 dígitos</td></tr>
+</table>
+<div class="box why"><strong>Interface Segregation (o "I" de SOLID):</strong> cada port é minúsculo e faz uma coisa. Um caso de uso que só precisa enviar e-mail recebe só o <code>MailProvider</code>, não um "objetão" com 40 métodos.</div>
+
+<h3 id="e11"><span class="step-num">11</span>Casos de uso</h3>
+<p><strong>O quê:</strong> em <code>src/application/&lt;assunto&gt;/</code>, uma classe por tarefa. Todas seguem o mesmo molde:</p>
+<pre><code>class FazAlgo {
+  constructor(private repo: AlgumRepositório, private ferramenta: AlgumPort) {}
+  async execute(input): Promise&lt;Either&lt;AppError, Output&gt;&gt; {
+    // 1. validar a entrada
+    // 2. buscar o que precisa nos repositórios
+    // 3. aplicar a regra chamando métodos das entidades
+    // 4. salvar
+    // 5. devolver right(resultado) ou left(erro)
+  }
+}</code></pre>
+
+<p><strong>A lista completa e o que cada um faz:</strong></p>
+
+<h4>Cliente e login</h4>
+<ul>
+  <li><strong>RegisterCustomer</strong> (<code>POST /customers</code>) — valida e-mail e senha (objetos de valor), confere se o e-mail já existe (<code>ConflictError</code>), gera o hash da senha, cria a entidade <code>Customer</code> e salva.</li>
+  <li><strong>AuthenticateCustomer</strong> (<code>POST /sessions</code>) — acha o cliente por e-mail, compara a senha com o hash. Se qualquer coisa falhar, devolve <strong>a mesma</strong> mensagem genérica ("E-mail ou senha inválidos") — não conta se foi o e-mail ou a senha que errou. Se der certo, assina um token com <code>{ sub: id, role }</code>.</li>
+</ul>
+
+<h4>Recuperação de senha</h4>
+<ul>
+  <li><strong>RequestPasswordReset</strong> (<code>POST /password/forgot</code>) — acha o cliente. <strong>Se não existir, finge que deu certo</strong> (não revela quem tem conta). Se existir: invalida códigos antigos, gera um código de 6 dígitos, guarda só o <em>hash</em> dele com validade de 15 min, e manda o código por e-mail.</li>
+  <li><strong>ResetPassword</strong> (<code>POST /password/reset</code>) — valida a nova senha, pega o último código utilizável do cliente, compara com o que ele enviou. Se ok: troca a senha (novo hash), marca o código como <em>consumido</em> e invalida os demais.</li>
+</ul>
+
+<h4>Produtos (área do administrador)</h4>
+<ul>
+  <li><strong>CreateProduct</strong> (<code>POST /admin/products</code>) — valida nome e preço (<code>Money.fromCents</code>), confere se todos os <code>flavorIds</code> informados existem de verdade, cria o produto.</li>
+  <li><strong>UpdateProduct</strong> (<code>PUT /admin/products/:id</code>) — acha o produto (<code>NotFoundError</code> se não achar), aplica só os campos enviados, revalida sabores se a lista mudou.</li>
+  <li><strong>ListProducts</strong> (<code>GET /products</code> e <code>GET /admin/products</code>) — lista paginada. O público só vê ativos; o admin pode ver inativos também.</li>
+  <li><strong>GetProduct</strong> (<code>GET /products/:id</code>) — um produto pelo id.</li>
+</ul>
+
+<h4>Sabores (área do administrador)</h4>
+<ul>
+  <li><strong>CreateFlavor</strong> (<code>POST /admin/flavors</code>) — valida nome, recusa nome repetido (<code>ConflictError</code>).</li>
+  <li><strong>UpdateFlavor</strong> (<code>PUT /admin/flavors/:id</code>) — edita nome/ativo, checando de novo por nome repetido.</li>
+  <li><strong>ListFlavors</strong> (<code>GET /flavors</code>, <code>GET /admin/flavors</code>) — paginada, mesma ideia de público × admin.</li>
+</ul>
+
+<h4>Carrinho (precisa estar logado)</h4>
+<ul>
+  <li><strong>GetCart</strong> — devolve o carrinho; se não existir, cria um vazio.</li>
+  <li><strong>AddCartItem</strong> — confere: produto existe e está ativo? Se o produto exige sabor, veio sabor? O sabor é aceito por esse produto e está ativo? Então chama <code>cart.addItem(...)</code> usando o <strong>preço atual</strong> do produto e salva.</li>
+  <li><strong>UpdateCartItem</strong> — muda a quantidade de uma linha.</li>
+  <li><strong>RemoveCartItem</strong> — tira uma linha.</li>
+  <li><strong>ClearCart</strong> — esvazia.</li>
+  <li><code>cart-view.ts</code> — um ajudante que transforma o carrinho em um "resumo para tela": para cada item, busca o nome do produto e do sabor e monta um JSON bonitinho com subtotais e total.</li>
+</ul>
+
+<h4>Pedidos (precisa estar logado)</h4>
+<ul>
+  <li><strong>CreateOrder</strong> (<code>POST /orders</code>) — pega o carrinho; recusa se estiver vazio. Para cada item, relê o produto/sabor (ainda existe? ainda ativo?), monta a lista "congelada" com nome + preço atuais, cria o <code>Order</code>, salva, e por fim <strong>esvazia o carrinho</strong>.</li>
+  <li><strong>ListOrders</strong> (<code>GET /orders</code>) — pedidos do cliente logado, paginados.</li>
+  <li><strong>GetOrder</strong> (<code>GET /orders/:id</code>) — um pedido. Só o <em>dono</em> ou um <em>admin</em> pode ver; senão, <code>ForbiddenError</code>.</li>
+</ul>
+
+<h3 id="e12"><span class="step-num">12</span>Providers (as ferramentas reais)</h3>
+<p><code>src/infra/providers/</code> — aqui os contratos (ports) ganham corpo. Todas usam só bibliotecas que <strong>já vêm no Node.js</strong> (<code>node:crypto</code>), sem instalar nada extra.</p>
+<table>
+  <tr><th>Arquivo / classe</th><th>Cumpre o port</th><th>Como</th></tr>
+  <tr><td><code>CryptoHashProvider</code></td><td><code>HashProvider</code></td><td><strong>scrypt</strong> com "sal" aleatório. Guarda <code>scrypt$sal$hash</code>. Compara em tempo constante (evita ataque de tempo).</td></tr>
+  <tr><td><code>HmacTokenProvider</code></td><td><code>TokenProvider</code></td><td>Monta um token no <strong>formato JWT</strong> (cabeçalho.dados.assinatura) e assina com HMAC-SHA256 usando o <code>JWT_SECRET</code>. Sem biblioteca de JWT.</td></tr>
+  <tr><td><code>ConsoleMailProvider</code></td><td><code>MailProvider</code></td><td>Não envia e-mail de verdade: <strong>imprime a mensagem no terminal</strong> (inclusive o código). Ótimo para estudar. Em produção, troca por um que fale com um servidor SMTP.</td></tr>
+  <tr><td><code>UuidGenerator</code> / <code>CryptoCodeGenerator</code></td><td><code>IdGenerator</code> / <code>CodeGenerator</code></td><td><code>randomUUID()</code> para ids; <code>randomInt(0,10)</code> repetido para o código de 6 dígitos.</td></tr>
+</table>
+<div class="box tip">Repare no padrão: <strong>o nome do arquivo diz a tecnologia</strong> (<code>crypto-</code>, <code>hmac-</code>, <code>console-</code>). Se um dia entrar <code>bcrypt-hash-provider.ts</code> ou <code>nodemailer-mail-provider.ts</code>, basta trocar uma linha no container. O resto do sistema nem percebe.</div>
+
+<h3 id="e13"><span class="step-num">13</span>Repositórios com Prisma</h3>
+<p><code>src/infra/database/prisma/</code>: <code>client.ts</code> (cria o objeto <code>prisma</code>) e um repositório por assunto. Cada um <strong>implementa</strong> a interface do domínio e faz o <strong>"de-para"</strong> (mapper) entre a linha do banco e a entidade.</p>
+<pre><code>function toDomain(row) {           // linha do banco  -&gt;  entidade
+  return Customer.restore({
+    id: row.id,
+    email: Email.unsafe(row.email),
+    role: row.role === 'ADMIN' ? 'ADMIN' : 'CUSTOMER',
+    // ...
+  })
+}
+
+async findByEmail(email) {
+  const row = await this.prisma.customer.findUnique({ where: { email } })
+  return row ? toDomain(row) : null
+}</code></pre>
+<p>Detalhes que valem citar:</p>
+<ul>
+  <li><strong>Produto ↔ sabores</strong>: ao salvar, apaga as ligações antigas em <code>ProductFlavor</code> e recria, dentro de uma <strong>transação</strong> (tudo ou nada).</li>
+  <li><strong>Carrinho</strong>: <code>save()</code> faz "upsert" do carrinho e <strong>substitui todas as linhas</strong> de uma vez, também em transação. Simples e sempre consistente.</li>
+  <li><strong>Pedido</strong>: <code>create()</code> grava o pedido e todos os itens juntos.</li>
+</ul>
+<div class="box analogy">O mapper é um <strong>tradutor juramentado</strong> na fronteira: de um lado fala "linguagem de banco" (colunas, texto), do outro "linguagem de negócio" (entidades, <code>Money</code>, <code>Email</code>). Nenhum dos dois lados precisa aprender o idioma do outro.</div>
+
+<h3 id="e14"><span class="step-num">14</span>A camada HTTP (Fastify)</h3>
+<p><code>src/infra/http/</code>. É a "recepção" que recebe pedidos da internet e chama o caso de uso certo.</p>
+<ul>
+  <li><code>http-helpers.ts</code>:
+    <ul>
+      <li><code>parseWith(schema, dados)</code> — valida o corpo/query com <strong>Zod</strong> (biblioteca de validação). Se falhar, vira <code>ValidationError</code> com a lista de problemas.</li>
+      <li><code>sendResult(reply, either, status)</code> — se <code>ok</code>, responde com o valor e o status de sucesso; se erro, responde <code>erro.status</code> + <code>{ error: code, message }</code>.</li>
+    </ul>
+  </li>
+  <li><code>auth.ts</code> — fábrica de "guardas" (middlewares que rodam <em>antes</em> da rota):
+    <ul>
+      <li><code>authenticate</code> — lê o cabeçalho <code>Authorization: Bearer ...</code>, valida o token, e pendura <code>request.user = { id, role }</code>. Sem token válido → 401.</li>
+      <li><code>authorizeAdmin</code> — depois do <code>authenticate</code>, exige <code>role === "ADMIN"</code>; senão → 403.</li>
+    </ul>
+  </li>
+  <li><code>routes/*.ts</code> — um arquivo por assunto (<code>customer</code>, <code>auth</code>, <code>product</code>, <code>flavor</code>, <code>cart</code>, <code>order</code>). Cada rota: valida a entrada → chama <code>container.useCases.xxx.execute(...)</code> → <code>sendResult(...)</code>. As rotas são "burras" de propósito: <strong>nenhuma regra de negócio aqui</strong>.</li>
+  <li><code>app.ts</code> — monta o Fastify, registra cada grupo de rotas em um <strong>escopo isolado</strong> (para o guarda do carrinho não "vazar" para as rotas públicas), e define o <strong>tratador de erros global</strong> (traduz <code>AppError</code> e erros do Zod) e o "rota não encontrada" (404).</li>
+</ul>
+
+<h3 id="e15"><span class="step-num">15</span>O container (composition root)</h3>
+<p><code>src/container.ts</code> é o <strong>único lugar</strong> que sabe quais peças concretas existem. Ele:</p>
+<ol>
+  <li>cria os <em>providers</em> (hash, token, mail, geradores);</li>
+  <li>cria os <em>repositórios</em> Prisma, passando o <code>prisma</code>;</li>
+  <li>cria cada <em>caso de uso</em>, injetando os repositórios e ports de que ele precisa;</li>
+  <li>devolve um objeto <code>{ tokens, useCases: { ... } }</code> que as rotas usam.</li>
+</ol>
+<div class="box why">Isto é <strong>injeção de dependência</strong> feita "na mão". Os casos de uso nunca fazem <code>new PrismaCustomerRepository()</code> — eles <em>recebem</em> um <code>CustomerRepository</code> pronto. Num teste, você injeta um repositório falso em memória e testa a regra sem banco nenhum.</div>
+
+<h3 id="e16"><span class="step-num">16</span>Servidor, variáveis de ambiente e seed</h3>
+<ul>
+  <li><code>src/config/env.ts</code> — lê o arquivo <code>.env</code> e entrega valores já tratados: <code>port</code>, <code>jwtSecret</code>, <code>tokenTtlSeconds</code>, <code>passwordResetTtlMinutes</code>. Avisa no console se o segredo do token ainda é o de exemplo.</li>
+  <li><code>src/server.ts</code> — o "liga": <code>buildApp()</code> e <code>app.listen()</code> na porta 3389.</li>
+  <li><code>prisma/seed.ts</code> — cria o <strong>administrador inicial</strong> (<code>admin@julia.dev</code> / <code>admin12345</code>), porque sem um admin ninguém consegue cadastrar produto. Rodável com <code>npm run db:seed</code>.</li>
+  <li><code>package.json</code> — atalhos: <code>dev</code>, <code>start</code>, <code>typecheck</code>, <code>db:migrate</code>, <code>db:seed</code>, <code>db:studio</code>. Única dependência nova: <code>zod</code>.</li>
+</ul>
+
+<h3 id="e17"><span class="step-num">17</span>Ajuste do TypeScript</h3>
+<p>O <code>tsconfig.json</code> estava num modo que <strong>exige escrever <code>.js</code> no fim de cada import</strong> — mas o código (inclusive o que já existia) não fazia isso. Trocamos para o modo <code>"moduleResolution": "Bundler"</code>, que combina com a forma como o projeto roda (via <code>tsx</code>). Resultado: <code>npm run typecheck</code> passa limpo, sem precisar reescrever centenas de imports.</p>
+
+<h3 id="e18"><span class="step-num">18</span>Testes</h3>
+<p><strong>1) Verificação de tipos:</strong> <code>npx tsc --noEmit</code> → <em>zero erros</em>.</p>
+<p><strong>2) Teste de ponta a ponta</strong> com o servidor no ar e <code>curl</code>, exercitando o fluxo real:</p>
+<ul>
+  <li>cadastrar cliente → <code>201</code> com os dados (sem senha);</li>
+  <li>login do cliente e do admin → token devolvido;</li>
+  <li>admin cria sabor e produto → <code>201</code>;</li>
+  <li>cliente tentando criar sabor → <code>403</code> (guarda de admin funcionando);</li>
+  <li>adicionar ao carrinho, ver carrinho, criar pedido → total correto (R$ 50,00 = 2 × 2500);</li>
+  <li>esqueci a senha → código impresso no terminal; reset com código errado → <code>401</code>; com o certo → senha trocada; login com a senha antiga falha, com a nova funciona;</li>
+  <li>editar produto e sabor (<code>PUT</code>), mudar quantidade (<code>PATCH</code>), remover item, criar pedido com carrinho vazio → <code>400</code>; pedir sem token → <code>401</code>.</li>
+</ul>
+<p>Todos passaram.</p>
+
+<h2 id="p4">Parte 4 — Fluxos completos narrados</h2>
+
+<h3>Fluxo A: cadastro e primeiro login</h3>
+<ol>
+  <li>App envia <code>POST /customers</code> com nome, e-mail e senha.</li>
+  <li>A rota valida o formato com Zod e chama <code>RegisterCustomer</code>.</li>
+  <li>O caso de uso cria <code>Email</code> e <code>RawPassword</code> (objetos de valor). Se algum for inválido → <code>400</code>.</li>
+  <li>Pergunta ao <code>CustomerRepository</code> se o e-mail já existe → se sim, <code>409</code>.</li>
+  <li>Pede ao <code>HashProvider</code> o hash da senha.</li>
+  <li>Monta <code>Customer.create(...)</code> e chama <code>repo.create(...)</code> → Prisma grava a linha.</li>
+  <li>Responde <code>201</code> com <code>customer.toPublic()</code> (sem o hash).</li>
+  <li>App então faz <code>POST /sessions</code>; <code>AuthenticateCustomer</code> confere a senha e devolve um <strong>token</strong>. O app guarda esse token.</li>
+</ol>
+
+<h3>Fluxo B: recuperação de senha</h3>
+<ol>
+  <li><code>POST /password/forgot</code> com o e-mail. Resposta é sempre <code>202</code> ("se existir, enviamos") — não revela se a conta existe.</li>
+  <li>Existindo a conta: códigos antigos são invalidados; um novo código de 6 dígitos é gerado; guarda-se o <strong>hash</strong> dele com validade de 15 min; o <code>MailProvider</code> "envia" (aqui, imprime no terminal).</li>
+  <li><code>POST /password/reset</code> com e-mail + código + nova senha.</li>
+  <li><code>ResetPassword</code> valida a nova senha, busca o último código utilizável, compara o hash. Errado/expirado → <code>401</code>.</li>
+  <li>Certo: grava o novo hash de senha, marca o código como <strong>consumido</strong> (uso único) e invalida os demais.</li>
+</ol>
+
+<h3>Fluxo C: admin cadastra produto</h3>
+<ol>
+  <li><code>POST /admin/flavors</code> (com token de admin) cria "Chocolate". Sem token → <code>401</code>. Token de cliente comum → <code>403</code>.</li>
+  <li><code>POST /admin/products</code> com nome, <code>priceCents</code> e <code>flavorIds: ["id-do-chocolate"]</code>.</li>
+  <li><code>CreateProduct</code> valida o preço com <code>Money.fromCents</code> e confere que <em>todo</em> id de sabor existe.</li>
+  <li>Grava o produto e as ligações <code>ProductFlavor</code> numa transação.</li>
+</ol>
+
+<h3>Fluxo D: cliente compra</h3>
+<ol>
+  <li><code>POST /cart/items</code> com <code>productId</code>, <code>flavorId</code> e <code>quantity: 2</code>.</li>
+  <li><code>AddCartItem</code> confere produto ativo, sabor válido e ativo, pega o <strong>preço atual</strong> e chama <code>cart.addItem(...)</code>. O carrinho é salvo.</li>
+  <li><code>GET /cart</code> mostra o resumo: item, subtotal 5000, total 5000.</li>
+  <li><code>POST /orders</code>. <code>CreateOrder</code> relê os produtos, "congela" nome+preço, cria o <code>Order</code> (status <code>PENDING</code>, total 5000) e <strong>esvazia o carrinho</strong>.</li>
+  <li><code>GET /orders</code> lista o pedido; <code>GET /orders/:id</code> mostra o detalhe (só para o dono ou admin).</li>
+</ol>
+
+<h2 id="p5">Parte 5 — Mapa de endpoints</h2>
+<table>
+  <tr><th>Recurso</th><th>Método e rota</th><th>Quem pode</th></tr>
+  <tr><td>Cadastro de clientes</td><td><code>POST /customers</code></td><td>qualquer um</td></tr>
+  <tr><td>Login</td><td><code>POST /sessions</code></td><td>qualquer um</td></tr>
+  <tr><td>Pedir código de recuperação</td><td><code>POST /password/forgot</code></td><td>qualquer um</td></tr>
+  <tr><td>Redefinir senha com o código</td><td><code>POST /password/reset</code></td><td>qualquer um</td></tr>
+  <tr><td>Catálogo (só ativos)</td><td><code>GET /products</code>, <code>GET /products/:id</code></td><td>qualquer um</td></tr>
+  <tr><td>Listar produtos incl. inativos</td><td><code>GET /admin/products</code></td><td>admin</td></tr>
+  <tr><td>Cadastrar produto</td><td><code>POST /admin/products</code></td><td>admin</td></tr>
+  <tr><td>Editar produto</td><td><code>PUT /admin/products/:id</code></td><td>admin</td></tr>
+  <tr><td>Listar sabores</td><td><code>GET /flavors</code></td><td>qualquer um</td></tr>
+  <tr><td>Cadastrar sabor</td><td><code>POST /admin/flavors</code></td><td>admin</td></tr>
+  <tr><td>Editar sabor</td><td><code>PUT /admin/flavors/:id</code></td><td>admin</td></tr>
+  <tr><td>Ver carrinho</td><td><code>GET /cart</code></td><td>cliente logado</td></tr>
+  <tr><td>Adicionar item</td><td><code>POST /cart/items</code></td><td>cliente logado</td></tr>
+  <tr><td>Mudar quantidade</td><td><code>PATCH /cart/items/:itemId</code></td><td>cliente logado</td></tr>
+  <tr><td>Remover item</td><td><code>DELETE /cart/items/:itemId</code></td><td>cliente logado</td></tr>
+  <tr><td>Esvaziar carrinho</td><td><code>DELETE /cart</code></td><td>cliente logado</td></tr>
+  <tr><td>Criar pedido</td><td><code>POST /orders</code></td><td>cliente logado</td></tr>
+  <tr><td>Meus pedidos</td><td><code>GET /orders</code></td><td>cliente logado</td></tr>
+  <tr><td>Detalhe do pedido</td><td><code>GET /orders/:id</code></td><td>dono ou admin</td></tr>
+  <tr><td>Saúde do serviço</td><td><code>GET /health</code></td><td>qualquer um</td></tr>
+</table>
+
+<h2 id="p6">Parte 6 — Como rodar</h2>
+<pre><code>npm install
+npm run db:migrate      # cria as tabelas no dev.db
+npm run db:seed         # cria o admin: admin@julia.dev / admin12345
+npm run dev             # sobe a API em http://localhost:3389
+
+# verificar tipos:
+npm run typecheck
+
+# olhar o banco numa tela:
+npm run db:studio</code></pre>
+<p><strong>Variáveis em <code>.env</code>:</strong> <code>DATABASE_URL</code>, <code>PORT</code>, <code>JWT_SECRET</code> (troque em produção!), <code>TOKEN_TTL_SECONDS</code>, <code>PASSWORD_RESET_TTL_MINUTES</code>, <code>ADMIN_EMAIL</code>, <code>ADMIN_PASSWORD</code>.</p>
+<div class="box warn">O código de recuperação de senha aparece <strong>no terminal onde o servidor está rodando</strong> (é o <code>ConsoleMailProvider</code>). Em produção, implemente um <code>MailProvider</code> de verdade.</div>
+
+<h2 id="p7">Parte 7 — Glossário</h2>
+<table>
+  <tr><th>Termo</th><th>Em palavras simples</th></tr>
+  <tr><td><strong>API</strong></td><td>Lista de "pedidos" que o backend aceita.</td></tr>
+  <tr><td><strong>Endpoint / rota</strong></td><td>Um endereço da API (ex.: <code>/orders</code>).</td></tr>
+  <tr><td><strong>Entidade</strong></td><td>Coisa do negócio com identidade própria e regras (Cliente, Pedido).</td></tr>
+  <tr><td><strong>Objeto de valor</strong></td><td>Coisa definida pelo conteúdo, sem id, imutável (E-mail, Dinheiro).</td></tr>
+  <tr><td><strong>Agregado</strong></td><td>Um grupo de objetos tratado como unidade, com uma "raiz" que controla o acesso (Carrinho + itens).</td></tr>
+  <tr><td><strong>Caso de uso</strong></td><td>O passo a passo de uma tarefa do sistema ("Criar pedido").</td></tr>
+  <tr><td><strong>Repositório</strong></td><td>Objeto que guarda/busca entidades. No domínio é só a interface; a implementação usa Prisma.</td></tr>
+  <tr><td><strong>Port / Adapter</strong></td><td>Port = contrato (interface). Adapter = a peça real que cumpre o contrato.</td></tr>
+  <tr><td><strong>DTO</strong></td><td>"Data Transfer Object": um objeto simples só para levar dados de entrada/saída.</td></tr>
+  <tr><td><strong>ORM</strong></td><td>Tradutor entre objetos do código e tabelas do banco (Prisma).</td></tr>
+  <tr><td><strong>Migration</strong></td><td>Arquivo que registra uma mudança na estrutura do banco.</td></tr>
+  <tr><td><strong>Hash</strong></td><td>Embaralhamento só de ida: dá para conferir, não dá para "desembaralhar".</td></tr>
+  <tr><td><strong>Token (JWT)</strong></td><td>Texto assinado que prova quem você é depois do login.</td></tr>
+  <tr><td><strong>Middleware / guard</strong></td><td>Função que roda antes da rota (ex.: checar login).</td></tr>
+  <tr><td><strong>Injeção de dependência</strong></td><td>Entregar as peças prontas para uma classe em vez de ela mesma criá-las.</td></tr>
+  <tr><td><strong>Composition root</strong></td><td>O único lugar que monta o quebra-cabeça de peças concretas (<code>container.ts</code>).</td></tr>
+  <tr><td><strong>Seed</strong></td><td>Script que insere dados iniciais (o admin).</td></tr>
+  <tr><td><strong>Snapshot</strong></td><td>"Foto" de um dado num momento (nome/preço no <code>OrderItem</code>).</td></tr>
+</table>
+
+<h2 id="p8">Parte 8 — Exercícios para fixar</h2>
+<ol>
+  <li>Desenhe as camadas de memória e diga, para cada arquivo abaixo, em qual camada ele está e por quê: <code>customer.ts</code>, <code>register-customer.ts</code>, <code>prisma-customer.repository.ts</code>, <code>customer-routes.ts</code>.</li>
+  <li>Por que <code>RegisterCustomer</code> não faz <code>new CryptoHashProvider()</code> lá dentro? O que isso facilita nos testes?</li>
+  <li>Explique por que o preço fica em centavos. Dê um exemplo numérico de erro que isso evita.</li>
+  <li>No login, por que a mensagem de erro é a mesma para "e-mail não existe" e "senha errada"?</li>
+  <li>Em <code>/password/forgot</code>, por que respondemos "ok" mesmo quando o e-mail não existe?</li>
+  <li>O que aconteceria se <code>OrderItem</code> guardasse só <code>productId</code> e o produto fosse apagado depois? Como o snapshot resolve isso?</li>
+  <li>Siga com o dedo o caminho de um <code>POST /orders</code>: rota → caso de uso → entidades → repositórios → resposta. Cite os arquivos.</li>
+  <li>Quer trocar o e-mail "de terminal" por um real. Quais arquivos você cria/edita? (Resposta: um novo adapter que implementa <code>MailProvider</code> + uma linha no <code>container.ts</code>.)</li>
+  <li>Adicione mentalmente um caso de uso "Cancelar pedido". Que método da entidade <code>Order</code> ele chamaria? Que erro retornaria se o pedido já estivesse pago?</li>
+  <li>Por que as rotas do carrinho ficam num "escopo isolado" no <code>app.ts</code>?</li>
+</ol>
+
+<hr>
+<p style="color:var(--muted); font-size:0.85rem;">Gerado como material de estudo do projeto <strong>backend-julia</strong>. Consulte também o <code>README.md</code> na raiz do projeto e explore o código na ordem das etapas acima — comece por <code>src/domain/</code>, depois <code>src/application/</code>, depois <code>src/infra/</code>.</p>
+
+</div>
+</body>
+</html>

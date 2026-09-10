@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Store customer. An admin is simply a customer whose `role` is "ADMIN".
+model Customer {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         String   @default("CUSTOMER") // CUSTOMER | ADMIN
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  passwordResetCodes PasswordResetCode[]
+  cart               Cart?
+  orders             Order[]
+}
+
+/// Short-lived numeric code e-mailed to a customer to recover the password.
+model PasswordResetCode {
+  id         String    @id @default(uuid())
+  customerId String
+  codeHash   String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  priceCents  Int
+  active      Boolean  @default(true)
+  category    String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  flavors    ProductFlavor[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+model Flavor {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products   ProductFlavor[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+}
+
+/// Which flavors a given product can be ordered with.
+model ProductFlavor {
+  productId String
+  flavorId  String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  flavor  Flavor  @relation(fields: [flavorId], references: [id], onDelete: Cascade)
+
+  @@id([productId, flavorId])
+  @@index([flavorId])
+}
+
+/// One open cart per customer.
+model Cart {
+  id         String   @id @default(uuid())
+  customerId String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  customer Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  items    CartItem[]
+}
+
+model CartItem {
+  id             String   @id @default(uuid())
+  cartId         String
+  productId      String
+  flavorId       String?
+  quantity       Int
+  unitPriceCents Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  flavor  Flavor? @relation(fields: [flavorId], references: [id])
+
+  @@index([cartId])
+}
+
+model Order {
+  id         String   @id @default(uuid())
+  customerId String
+  status     String   @default("PENDING") // PENDING | PAID | CANCELLED
+  totalCents Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  customer Customer    @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+
+  @@index([customerId])
+}
+
+/// Line of an order. Product/flavor names are snapshotted so history is stable.
+model OrderItem {
+  id             String  @id @default(uuid())
+  orderId        String
+  productId      String
+  flavorId       String?
+  productName    String
+  flavorName     String?
+  quantity       Int
+  unitPriceCents Int
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  flavor  Flavor? @relation(fields: [flavorId], references: [id])
+
+  @@index([orderId])
+}
