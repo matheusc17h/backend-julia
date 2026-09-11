@@ -136,6 +136,15 @@ model OrderRequest {
   updatedAt       DateTime  @updatedAt
 }
 
+/// E-mail captado pelo formulário "Receba Ofertas Especiais" (rodapé) —
+/// remarketing: lista de possíveis clientes pra mandar promoções depois.
+/// Sem relação com Customer de propósito (não exige conta nem login).
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 /// Line of an order. Product/flavor names are snapshotted so history is stable.
 model OrderItem {
   id             String  @id @default(uuid())

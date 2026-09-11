@@ -23,6 +23,8 @@ import { ListAllOrders } from './application/order/list-all-orders'
 import { ListOrders } from './application/order/list-orders'
 import { CreateOrderRequest } from './application/order-request/create-order-request'
 import { ListOrderRequests } from './application/order-request/list-order-requests'
+import { ListNewsletterSubscribers } from './application/newsletter/list-newsletter-subscribers'
+import { SubscribeNewsletter } from './application/newsletter/subscribe-newsletter'
 import { CreateProduct } from './application/product/create-product'
 import { GetProduct } from './application/product/get-product'
 import { ListProducts } from './application/product/list-products'
@@ -35,6 +37,7 @@ import { PrismaFlavorRepository } from './infra/database/prisma/prisma-flavor.re
 import { PrismaOrderAdminRepository } from './infra/database/prisma/prisma-order-admin.repository'
 import { PrismaOrderRepository } from './infra/database/prisma/prisma-order.repository'
 import { PrismaOrderRequestRepository } from './infra/database/prisma/prisma-order-request.repository'
+import { PrismaNewsletterSubscriberRepository } from './infra/database/prisma/prisma-newsletter-subscriber.repository'
 import { PrismaPasswordResetCodeRepository } from './infra/database/prisma/prisma-password-reset-code.repository'
 import { PrismaProductRepository } from './infra/database/prisma/prisma-product.repository'
 import { ConsoleMailProvider } from './infra/providers/console-mail-provider'
@@ -63,6 +66,7 @@ export function buildContainer() {
   const orderRepo = new PrismaOrderRepository(prisma)
   const orderAdminRepo = new PrismaOrderAdminRepository(prisma)
   const orderRequestRepo = new PrismaOrderRequestRepository(prisma)
+  const newsletterRepo = new PrismaNewsletterSubscriberRepository(prisma)
 
   // --- Use cases ---------------------------------------------------------
   return {
@@ -110,6 +114,9 @@ export function buildContainer() {
 
       createOrderRequest: new CreateOrderRequest(orderRequestRepo, ids),
       listOrderRequests: new ListOrderRequests(orderRequestRepo),
+
+      subscribeNewsletter: new SubscribeNewsletter(newsletterRepo, ids),
+      listNewsletterSubscribers: new ListNewsletterSubscribers(newsletterRepo),
     },
   }
 }
