@@ -5,4 +5,6 @@ export interface OrderRepository {
   findById(id: string): Promise<Order | null>
   listByCustomer(customerId: string, pagination: Pagination): Promise<Paginated<Order>>
   create(order: Order): Promise<void>
+  /** Persiste mudanças de status (`markPaid`, `confirm`, `cancel`). */
+  save(order: Order): Promise<void>
 }

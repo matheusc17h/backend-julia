@@ -71,6 +71,13 @@ export class CreateOrder {
     })
     if (!order.ok) return left(order.value)
 
+    // O pagamento via Pix ainda é fictício (não existe provedor real
+    // integrado), então tratamos o pedido como pago assim que é criado.
+    // Quando entrar um provedor de verdade, isso deve sair daqui e o
+    // pedido deve nascer PENDING até chegar o webhook de confirmação.
+    const paid = order.value.markPaid()
+    if (!paid.ok) return left(paid.value)
+
     await this.orders.create(order.value)
 
     cart.clear()

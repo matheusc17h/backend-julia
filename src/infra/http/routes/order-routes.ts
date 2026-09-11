@@ -76,4 +76,26 @@ export function orderRoutes(app: FastifyInstance, container: Container, guards: 
       return sendResult(reply, result)
     },
   )
+
+  // Admin aceita um pedido pago
+  app.post(
+    '/admin/orders/:id/confirm',
+    { preHandler: [guards.authorizeAdmin] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string }
+      const result = await container.useCases.confirmOrder.execute({ orderId: id })
+      return sendResult(reply, result)
+    },
+  )
+
+  // Admin nega um pedido — cancela e sinaliza estorno se já estava pago
+  app.post(
+    '/admin/orders/:id/deny',
+    { preHandler: [guards.authorizeAdmin] },
+    async (request, reply) => {
+      const { id } = request.params as { id: string }
+      const result = await container.useCases.denyOrder.execute({ orderId: id })
+      return sendResult(reply, result)
+    },
+  )
 }

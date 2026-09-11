@@ -2,7 +2,7 @@ import { Either, left, right } from '../../shared/either'
 import { ValidationError } from '../../shared/errors'
 import { Money } from '../../shared/money'
 
-export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED'
+export type OrderStatus = 'PENDING' | 'PAID' | 'CONFIRMED' | 'CANCELLED'
 
 export interface OrderItemProps {
   id: string
@@ -134,9 +134,25 @@ export class Order {
     return right(undefined)
   }
 
+  /** O admin aceita preparar o pedido. Só faz sentido depois do pagamento. */
+  confirm(now = new Date()): Either<ValidationError, void> {
+    if (this.props.status !== 'PAID') {
+      return left(new ValidationError('Só é possível aceitar pedidos com pagamento confirmado.'))
+    }
+    this.props.status = 'CONFIRMED'
+    this.props.updatedAt = now
+    return right(undefined)
+  }
+
+  /**
+   * Cancela o pedido. Diferente da versão anterior, isto agora é permitido
+   * mesmo com o pedido já pago (ex: o admin nega um pedido pago) — nesse
+   * caso cabe a quem chama decidir/registrar o estorno; ver `DenyOrder`.
+   * Só pedidos já `CONFIRMED` ou já `CANCELLED` não podem mais mudar.
+   */
   cancel(now = new Date()): Either<ValidationError, void> {
-    if (this.props.status === 'PAID') {
-      return left(new ValidationError('Pedidos já pagos não podem ser cancelados.'))
+    if (this.props.status === 'CONFIRMED' || this.props.status === 'CANCELLED') {
+      return left(new ValidationError('Este pedido não pode mais ser cancelado.'))
     }
     this.props.status = 'CANCELLED'
     this.props.updatedAt = now

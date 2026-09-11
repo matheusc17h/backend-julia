@@ -75,7 +75,13 @@ export class PrismaOrderAdminRepository implements OrderAdminRepository {
   async summary(): Promise<AdminOrderSummary> {
     const [totalOrders, revenue, customers] = await Promise.all([
       this.prisma.order.count(),
-      this.prisma.order.aggregate({ _sum: { totalCents: true } }),
+      // Só conta como faturamento o que está (ou ficou) efetivamente pago —
+      // pedido negado/cancelado não é receita, mesmo que tenha sido pago
+      // (o valor foi/deveria ser estornado).
+      this.prisma.order.aggregate({
+        _sum: { totalCents: true },
+        where: { status: { in: ['PAID', 'CONFIRMED'] } },
+      }),
       this.prisma.order.findMany({ distinct: ['customerId'], select: { customerId: true } }),
     ])
     return {

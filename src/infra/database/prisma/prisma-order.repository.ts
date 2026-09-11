@@ -75,6 +75,13 @@ export class PrismaOrderRepository implements OrderRepository {
     }
   }
 
+  async save(order: Order): Promise<void> {
+    await this.prisma.order.update({
+      where: { id: order.id },
+      data: { status: order.status, updatedAt: order.updatedAt },
+    })
+  }
+
   async create(order: Order): Promise<void> {
     await this.prisma.order.create({
       data: {

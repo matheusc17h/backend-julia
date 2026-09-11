@@ -13,7 +13,9 @@ import { RegisterCustomer } from './application/customer/register-customer'
 import { CreateFlavor } from './application/flavor/create-flavor'
 import { ListFlavors } from './application/flavor/list-flavors'
 import { UpdateFlavor } from './application/flavor/update-flavor'
+import { ConfirmOrder } from './application/order/confirm-order'
 import { CreateOrder } from './application/order/create-order'
+import { DenyOrder } from './application/order/deny-order'
 import { GetAdminDashboardSummary } from './application/order/get-admin-dashboard-summary'
 import { GetAdminOrder } from './application/order/get-admin-order'
 import { GetOrder } from './application/order/get-order'
@@ -99,6 +101,8 @@ export function buildContainer() {
       listAllOrders: new ListAllOrders(orderAdminRepo),
       getAdminOrder: new GetAdminOrder(orderAdminRepo),
       getAdminDashboardSummary: new GetAdminDashboardSummary(orderAdminRepo),
+      confirmOrder: new ConfirmOrder(orderRepo, orderAdminRepo),
+      denyOrder: new DenyOrder(orderRepo, orderAdminRepo),
     },
   }
 }
