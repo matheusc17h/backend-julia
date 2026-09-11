@@ -14,21 +14,32 @@ const resetSchema = z.object({
 })
 
 export function authRoutes(app: FastifyInstance, container: Container): void {
-  // Recuperação de senha: solicita o código de recuperação por e-mail
-  app.post('/password/forgot', async (request, reply) => {
-    const parsed = parseWith(requestResetSchema, request.body)
-    if (!parsed.ok) return sendResult(reply, parsed)
+  // Recuperação de senha: solicita o código de recuperação por e-mail.
+  // Limite apertado pra não virar spam de e-mail nem varredura de contas.
+  app.post(
+    '/password/forgot',
+    { config: { rateLimit: { max: 5, timeWindow: '10 minutes' } } },
+    async (request, reply) => {
+      const parsed = parseWith(requestResetSchema, request.body)
+      if (!parsed.ok) return sendResult(reply, parsed)
 
-    const result = await container.useCases.requestPasswordReset.execute(parsed.value)
-    return sendResult(reply, result, 202)
-  })
+      const result = await container.useCases.requestPasswordReset.execute(parsed.value)
+      return sendResult(reply, result, 202)
+    },
+  )
 
-  // Recuperação de senha: valida o código e define a nova senha
-  app.post('/password/reset', async (request, reply) => {
-    const parsed = parseWith(resetSchema, request.body)
-    if (!parsed.ok) return sendResult(reply, parsed)
+  // Recuperação de senha: valida o código e define a nova senha.
+  // Limite apertado: o código tem só 6 dígitos (1 milhão de combinações),
+  // sem isso daria pra forçar bruto dentro da janela de validade dele.
+  app.post(
+    '/password/reset',
+    { config: { rateLimit: { max: 10, timeWindow: '15 minutes' } } },
+    async (request, reply) => {
+      const parsed = parseWith(resetSchema, request.body)
+      if (!parsed.ok) return sendResult(reply, parsed)
 
-    const result = await container.useCases.resetPassword.execute(parsed.value)
-    return sendResult(reply, result, 200)
-  })
+      const result = await container.useCases.resetPassword.execute(parsed.value)
+      return sendResult(reply, result, 200)
+    },
+  )
 }

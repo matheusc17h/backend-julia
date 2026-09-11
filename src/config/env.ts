@@ -29,14 +29,31 @@ function parseOrigins(value: string | undefined): CorsOrigin {
     .filter(Boolean)
 }
 
+const INSECURE_DEV_JWT_SECRET = 'dev-insecure-secret-change-me'
+
+// Em produção, um JWT_SECRET ausente NUNCA deve cair silenciosamente num
+// valor padrão: esse valor está no código-fonte (público no repositório),
+// então qualquer pessoa poderia forjar um token válido — inclusive de
+// admin. Em produção o processo se recusa a subir sem um segredo de
+// verdade; em dev, mantém o fallback (com aviso) pra não travar quem só
+// quer rodar localmente sem configurar nada.
+const isProduction = process.env.NODE_ENV === 'production'
+
+if (isProduction && !process.env.JWT_SECRET) {
+  throw new Error(
+    '[env] JWT_SECRET não definido em produção. Configure uma variável de ambiente ' +
+      'JWT_SECRET com um valor longo e aleatório antes de subir o servidor.',
+  )
+}
+
+if (!isProduction && !process.env.JWT_SECRET) {
+  console.warn('[env] JWT_SECRET não definido — usando segredo inseguro de desenvolvimento.')
+}
+
 export const env = {
   port: optionalNumber(process.env.PORT, 3389),
-  jwtSecret: process.env.JWT_SECRET ?? 'dev-insecure-secret-change-me',
+  jwtSecret: process.env.JWT_SECRET ?? INSECURE_DEV_JWT_SECRET,
   passwordResetTtlMinutes: optionalNumber(process.env.PASSWORD_RESET_TTL_MINUTES, 15),
   tokenTtlSeconds: optionalNumber(process.env.TOKEN_TTL_SECONDS, 60 * 60 * 24 * 7),
   corsOrigins: parseOrigins(process.env.CORS_ORIGINS),
-}
-
-if (env.jwtSecret === 'dev-insecure-secret-change-me') {
-  console.warn('[env] JWT_SECRET não definido — usando segredo inseguro de desenvolvimento.')
 }

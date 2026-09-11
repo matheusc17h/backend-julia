@@ -21,23 +21,31 @@ export function customerRoutes(
   container: Container,
   guards: AuthGuards,
 ): void {
-  // Cadastro de clientes
-  app.post('/customers', async (request, reply) => {
-    const parsed = parseWith(registerSchema, request.body)
-    if (!parsed.ok) return sendResult(reply, parsed)
+  // Cadastro de clientes. Limite pra não virar fábrica automática de contas.
+  app.post(
+    '/customers',
+    { config: { rateLimit: { max: 10, timeWindow: '1 hour' } } },
+    async (request, reply) => {
+      const parsed = parseWith(registerSchema, request.body)
+      if (!parsed.ok) return sendResult(reply, parsed)
 
-    const result = await container.useCases.registerCustomer.execute(parsed.value)
-    return sendResult(reply, result, 201)
-  })
+      const result = await container.useCases.registerCustomer.execute(parsed.value)
+      return sendResult(reply, result, 201)
+    },
+  )
 
-  // Login
-  app.post('/sessions', async (request, reply) => {
-    const parsed = parseWith(loginSchema, request.body)
-    if (!parsed.ok) return sendResult(reply, parsed)
+  // Login. Limite pra dificultar força bruta de senha.
+  app.post(
+    '/sessions',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+    async (request, reply) => {
+      const parsed = parseWith(loginSchema, request.body)
+      if (!parsed.ok) return sendResult(reply, parsed)
 
-    const result = await container.useCases.authenticateCustomer.execute(parsed.value)
-    return sendResult(reply, result, 200)
-  })
+      const result = await container.useCases.authenticateCustomer.execute(parsed.value)
+      return sendResult(reply, result, 200)
+    },
+  )
 
   // Perfil do cliente autenticado
   app.get('/me', { preHandler: [guards.authenticate] }, async (request, reply) => {
