@@ -119,6 +119,23 @@ model Order {
   @@index([customerId])
 }
 
+/// Pedido personalizado feito pelo formulário público "Faça sua Encomenda"
+/// (/encomendas) — sem exigir login. É um pedido de contato: a equipe entra
+/// em contato pelo WhatsApp pra confirmar e combinar o pagamento, diferente
+/// do fluxo de carrinho (Order), que já nasce a partir de produtos do
+/// catálogo escolhidos por um cliente autenticado.
+model OrderRequest {
+  id              String    @id @default(uuid())
+  customerName    String
+  whatsapp        String
+  productCategory String
+  deliveryDate    DateTime?
+  notes           String?
+  status          String    @default("PENDING") // PENDING | CONTACTED | DONE
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 /// Line of an order. Product/flavor names are snapshotted so history is stable.
 model OrderItem {
   id             String  @id @default(uuid())

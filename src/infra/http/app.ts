@@ -12,6 +12,7 @@ import { cartRoutes } from './routes/cart-routes'
 import { customerRoutes } from './routes/customer-routes'
 import { flavorRoutes } from './routes/flavor-routes'
 import { orderRoutes } from './routes/order-routes'
+import { orderRequestRoutes } from './routes/order-request-routes'
 import { productRoutes } from './routes/product-routes'
 
 export function buildApp(): FastifyInstance {
@@ -44,6 +45,7 @@ export function buildApp(): FastifyInstance {
   app.register(async (instance) => flavorRoutes(instance, container, guards))
   app.register(async (instance) => cartRoutes(instance, container, guards))
   app.register(async (instance) => orderRoutes(instance, container, guards))
+  app.register(async (instance) => orderRequestRoutes(instance, container, guards))
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof AppError) {

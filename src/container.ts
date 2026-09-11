@@ -21,6 +21,8 @@ import { GetAdminOrder } from './application/order/get-admin-order'
 import { GetOrder } from './application/order/get-order'
 import { ListAllOrders } from './application/order/list-all-orders'
 import { ListOrders } from './application/order/list-orders'
+import { CreateOrderRequest } from './application/order-request/create-order-request'
+import { ListOrderRequests } from './application/order-request/list-order-requests'
 import { CreateProduct } from './application/product/create-product'
 import { GetProduct } from './application/product/get-product'
 import { ListProducts } from './application/product/list-products'
@@ -32,6 +34,7 @@ import { PrismaCustomerRepository } from './infra/database/prisma/prisma-custome
 import { PrismaFlavorRepository } from './infra/database/prisma/prisma-flavor.repository'
 import { PrismaOrderAdminRepository } from './infra/database/prisma/prisma-order-admin.repository'
 import { PrismaOrderRepository } from './infra/database/prisma/prisma-order.repository'
+import { PrismaOrderRequestRepository } from './infra/database/prisma/prisma-order-request.repository'
 import { PrismaPasswordResetCodeRepository } from './infra/database/prisma/prisma-password-reset-code.repository'
 import { PrismaProductRepository } from './infra/database/prisma/prisma-product.repository'
 import { ConsoleMailProvider } from './infra/providers/console-mail-provider'
@@ -59,6 +62,7 @@ export function buildContainer() {
   const cartRepo = new PrismaCartRepository(prisma)
   const orderRepo = new PrismaOrderRepository(prisma)
   const orderAdminRepo = new PrismaOrderAdminRepository(prisma)
+  const orderRequestRepo = new PrismaOrderRequestRepository(prisma)
 
   // --- Use cases ---------------------------------------------------------
   return {
@@ -103,6 +107,9 @@ export function buildContainer() {
       getAdminDashboardSummary: new GetAdminDashboardSummary(orderAdminRepo),
       confirmOrder: new ConfirmOrder(orderRepo, orderAdminRepo),
       denyOrder: new DenyOrder(orderRepo, orderAdminRepo),
+
+      createOrderRequest: new CreateOrderRequest(orderRequestRepo, ids),
+      listOrderRequests: new ListOrderRequests(orderRequestRepo),
     },
   }
 }
