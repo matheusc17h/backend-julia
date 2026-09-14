@@ -20,7 +20,10 @@ jobs:
           DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
         run: |
           mkdir -p backup
-          pg_dump "$DATABASE_URL_UNPOOLED" --format=custom --file=backup/petit-de-lamour-$(date +%Y-%m-%d).dump
+          # remove espaços/quebras de linha acidentais que às vezes entram
+          # ao colar o secret na UI do GitHub
+          CLEAN_URL=$(printf '%s' "$DATABASE_URL_UNPOOLED" | tr -d '\r\n' | xargs)
+          pg_dump "$CLEAN_URL" --format=custom --file=backup/petit-de-lamour-$(date +%Y-%m-%d).dump
 
       - name: Guarda o dump como artefato
         uses: actions/upload-artifact@v4
