@@ -1,0 +1,30 @@
+name: Backup diário do banco
+
+# Roda todo dia às 6h UTC (3h em Brasília) e também pode ser disparado
+# manualmente pela aba "Actions" do GitHub, caso precise de um backup
+# extra fora do horário programado.
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instala cliente do Postgres
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Gera o dump do banco
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          mkdir -p backup
+          pg_dump "$DATABASE_URL_UNPOOLED" --format=custom --file=backup/petit-de-lamour-$(date +%Y-%m-%d).dump
+
+      - name: Guarda o dump como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: backup/*.dump
+          retention-days: 90
