@@ -45,20 +45,20 @@ const CATALOG: SeedProduct[] = [
   { name: 'Cone Trufado Ovomaltine', priceCents: 1500, category: 'cones', imageUrl: 'cone-ovomaltine.png' },
   { name: 'Cone Trufado Ouro Branco', priceCents: 1500, category: 'cones', imageUrl: 'cone-ourob.png' },
   { name: 'Cone Trufado Ferrero Rocher', priceCents: 1500, category: 'cones', imageUrl: 'cone-ferrero1.png' },
-  { name: 'Cone Trufado Cookies & Cream', priceCents: 1500, category: 'cones', imageUrl: 'cone-cookies-cream.jpg' },
-  { name: 'Cone Trufado Prestígio', priceCents: 1500, category: 'cones', imageUrl: 'cone-prestigio.jpg' },
-  { name: 'Cone Trufado Maracujá', priceCents: 1500, category: 'cones', imageUrl: 'cone-maracuja.jpg' },
-  { name: 'Cone Trufado Morango', priceCents: 1500, category: 'cones', imageUrl: 'cone-morango.jpg' },
+  { name: 'Cone Trufado Cookies & Cream', priceCents: 1500, category: 'cones', imageUrl: 'cone-cookies-cream.png' },
+  { name: 'Cone Trufado Prestígio', priceCents: 1500, category: 'cones', imageUrl: 'cone-prestigio.png' },
+  { name: 'Cone Trufado Maracujá', priceCents: 1500, category: 'cones', imageUrl: 'cone-maracuja.png' },
+  { name: 'Cone Trufado Morango', priceCents: 1500, category: 'cones', imageUrl: 'cone-morango.png' },
   // Bolos artesanais
   { name: 'Bolo Brigadeiro Gourmet', priceCents: 12000, category: 'bolos', imageUrl: 'bolo1.png' },
   { name: 'Bolo Morango com Leite Ninho', priceCents: 13000, category: 'bolos', imageUrl: 'bolo2.png' },
   { name: 'Bolo de Chocolate', priceCents: 11000, category: 'bolos', imageUrl: 'bolo3.png' },
-  { name: 'Bolo de Baunilha', priceCents: 11000, category: 'bolos', imageUrl: 'bolo-baunilha.jpg' },
+  { name: 'Bolo de Baunilha', priceCents: 11000, category: 'bolos', imageUrl: 'bolo-baunilha.png' },
   // Ovos de páscoa trufados
-  { name: 'Ovo Trufado Brigadeiro Gourmet', priceCents: 4500, category: 'ovos', imageUrl: 'ovo-brigadeiro.jpg' },
-  { name: 'Ovo Trufado Prestígio', priceCents: 4500, category: 'ovos', imageUrl: 'ovo-prestigio.jpg' },
-  { name: 'Ovo Trufado Ninho com Morango', priceCents: 5000, category: 'ovos', imageUrl: 'ovo-ninho-morango.jpg' },
-  { name: 'Ovo Trufado Kinder Bueno', priceCents: 5500, category: 'ovos', imageUrl: 'ovo-kinder.jpg' },
+  { name: 'Ovo Trufado Brigadeiro Gourmet', priceCents: 4500, category: 'ovos', imageUrl: 'ovo-brigadeiro.png' },
+  { name: 'Ovo Trufado Prestígio', priceCents: 4500, category: 'ovos', imageUrl: 'ovo-prestigio.png' },
+  { name: 'Ovo Trufado Ninho com Morango', priceCents: 5000, category: 'ovos', imageUrl: 'ovo-ninho-morango.png' },
+  { name: 'Ovo Trufado Kinder Bueno', priceCents: 5500, category: 'ovos', imageUrl: 'ovo-kinder.png' },
 ]
 
 async function seedCatalog() {
