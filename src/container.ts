@@ -40,6 +40,7 @@ import { PrismaOrderRequestRepository } from './infra/database/prisma/prisma-ord
 import { PrismaNewsletterSubscriberRepository } from './infra/database/prisma/prisma-newsletter-subscriber.repository'
 import { PrismaPasswordResetCodeRepository } from './infra/database/prisma/prisma-password-reset-code.repository'
 import { PrismaProductRepository } from './infra/database/prisma/prisma-product.repository'
+import { BrevoMailProvider } from './infra/providers/brevo-mail-provider'
 import { ConsoleMailProvider } from './infra/providers/console-mail-provider'
 import { CryptoCodeGenerator, UuidGenerator } from './infra/providers/crypto-generators'
 import { CryptoHashProvider } from './infra/providers/crypto-hash-provider'
@@ -53,7 +54,10 @@ export function buildContainer() {
   // --- Adapters / providers -------------------------------------------------
   const hasher = new CryptoHashProvider()
   const tokens = new HmacTokenProvider(env.jwtSecret, env.tokenTtlSeconds)
-  const mail = new ConsoleMailProvider()
+  const mail =
+    env.mail.brevoApiKey && env.mail.fromEmail
+      ? new BrevoMailProvider(env.mail.brevoApiKey, env.mail.fromEmail, env.mail.fromName)
+      : new ConsoleMailProvider()
   const ids = new UuidGenerator()
   const codes = new CryptoCodeGenerator()
 

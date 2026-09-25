@@ -56,4 +56,12 @@ export const env = {
   passwordResetTtlMinutes: optionalNumber(process.env.PASSWORD_RESET_TTL_MINUTES, 15),
   tokenTtlSeconds: optionalNumber(process.env.TOKEN_TTL_SECONDS, 60 * 60 * 24 * 7),
   corsOrigins: parseOrigins(process.env.CORS_ORIGINS),
+  // E-mail de verdade (Brevo) é opcional: sem essas três variáveis, o
+  // container cai de volta pro ConsoleMailProvider (só loga no terminal —
+  // bom pra dev, inútil em produção).
+  mail: {
+    brevoApiKey: process.env.BREVO_API_KEY,
+    fromEmail: process.env.MAIL_FROM_EMAIL,
+    fromName: process.env.MAIL_FROM_NAME ?? 'Petit de L\'Amour',
+  },
 }
